@@ -21,4 +21,11 @@ interface SetDefaultStockInterface
      * @throws NoSuchEntityException
      */
     public function execute(int $productId, float $quantity, int $stockId, int $status): void;
+
+    /**
+     * @param int $productId
+     * @param int $stockId
+     * @param int $status
+     */
+    public function setStock(int $productId, int $stockId, int $status): void;
 }

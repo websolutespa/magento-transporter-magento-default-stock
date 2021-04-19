@@ -51,4 +51,18 @@ class SetDefaultStock implements SetDefaultStockInterface
         /** @var AbstractModel $stockItem */
         $this->stockItemResourceModel->save($stockItem);
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function setStock(int $productId, int $stockId, int $status): void
+    {
+        $stockItem = $this->stockItemInterfaceFactory->create();
+        $this->stockItemResourceModel->loadByProductId($stockItem, $productId, $stockId);
+
+        $stockItem->setIsInStock($status);
+
+        /** @var AbstractModel $stockItem */
+        $this->stockItemResourceModel->save($stockItem);
+    }
 }

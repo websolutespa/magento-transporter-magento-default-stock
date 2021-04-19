@@ -53,9 +53,16 @@ class SetStock implements SetStockInterface
      * @param float $quantity
      * @param int $stockId
      * @param bool $reindex
+     * @param int $stockStatus
      * @throws TransporterException
      */
-    public function execute(string $sku, float $quantity, int $stockId, bool $reindex = false)
+    public function execute(
+        string $sku,
+        float $quantity,
+        int $stockId,
+        bool $reindex = false,
+        int $stockStatus = StockStatusInterface::STATUS_IN_STOCK
+    )
     {
         $productId = $this->getProductIdFromSku($sku);
 
@@ -64,7 +71,42 @@ class SetStock implements SetStockInterface
                 $productId,
                 $quantity,
                 $stockId,
-                StockStatusInterface::STATUS_IN_STOCK
+                $stockStatus
+            );
+        } catch (NoSuchEntityException $e) {
+            throw new TransporterException(__($e->getMessage()));
+        }
+
+        if ($reindex) {
+            try {
+                $this->indexerRow->execute($productId);
+            } catch (LocalizedException $e) {
+                throw new TransporterException(__($e->getMessage()));
+            }
+        }
+    }
+
+    /**
+     * @param string $sku
+     * @param int $stockId
+     * @param bool $reindex
+     * @param int $stockStatus
+     * @throws TransporterException
+     */
+    public function setStockStatus(
+        string $sku,
+        int $stockId,
+        bool $reindex = false,
+        int $stockStatus = StockStatusInterface::STATUS_IN_STOCK
+    )
+    {
+        $productId = $this->getProductIdFromSku($sku);
+
+        try {
+            $this->setDefaultStock->setStock(
+                $productId,
+                $stockId,
+                $stockStatus
             );
         } catch (NoSuchEntityException $e) {
             throw new TransporterException(__($e->getMessage()));
